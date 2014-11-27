@@ -35,11 +35,14 @@
   <ItemGroup>
     <Compile Include="ActorCollection.cs" />
     <Compile Include="AnimatedTexture.cs" />
+    <Compile Include="ActorContainer.cs" />
+    <Compile Include="ColorExtensions.cs" />
     <Compile Include="DrawableCollection.cs" />
     <Compile Include="DrawingSupport.cs" />
     <Compile Include="DriverManager.cs" />
     <Compile Include="IActor.cs" />
     <Compile Include="IBoundObject.cs" />
+    <Compile Include="IClipboard.cs" />
     <Compile Include="IDrawable.cs" />
     <Compile Include="IDriver.cs" />
     <Compile Include="IFocusable.cs" />
@@ -49,6 +52,7 @@
     <Compile Include="IMusic.cs" />
     <Compile Include="IMusicPlayer.cs" />
     <Compile Include="Input\IInputHelper.cs" />
+    <Compile Include="Input\InputExtensions.cs" />
     <Compile Include="Input\InputHelperBase.cs" />
     <Compile Include="Input\Key.cs" />
     <Compile Include="Input\KeyData.cs" />
@@ -68,6 +72,7 @@
     <Compile Include="Color.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Rectangle.cs" />
+    <Compile Include="RichString.cs" />
     <Compile Include="Scene.cs" />
     <Compile Include="Size.cs" />
     <Compile Include="TickEventArgs.cs" />

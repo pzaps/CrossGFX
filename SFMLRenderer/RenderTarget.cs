@@ -1,18 +1,29 @@
 ﻿// Copyright (c) 2014 CrossGFX Team
 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation;
-// version 3.0.
+// This is free and unencumbered software released into the public domain.
 
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// Lesser General Public License for more details.
+// Anyone is free to copy, modify, publish, use, compile, sell, or
+// distribute this software, either in source code form or as a compiled
+// binary, for any purpose, commercial or non-commercial, and by any
+// means.
 
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library; if not, visit
-// https://www.gnu.org/licenses/lgpl.html.
+// In jurisdictions that recognize copyright laws, the author or authors
+// of this software dedicate any and all copyright interest in the
+// software to the public domain. We make this dedication for the benefit
+// of the public at large and to the detriment of our heirs and
+// successors. We intend this dedication to be an overt act of
+// relinquishment in perpetuity of all present and future rights to this
+// software under copyright law.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
+// For more information, please refer to <http://unlicense.org/>
 
 using System;
 using System.Collections.Generic;
@@ -144,6 +155,18 @@ namespace crossGFX.SFMLRenderer
             }
         }
 
+        public void DrawRectangle(Rectangle bounds, Color color,
+            int borderSizeTop, int borderSizeRight, int borderSizeBottom, int borderSizeLeft) {
+            this.Fill(new Rectangle(bounds.X, bounds.Y, bounds.Width, borderSizeTop), color); // top
+            this.Fill(new Rectangle(bounds.X + bounds.Width - borderSizeRight, bounds.Y, borderSizeRight, bounds.Height), color); // right
+            this.Fill(new Rectangle(bounds.X, bounds.Y + bounds.Height - borderSizeBottom, bounds.Width, borderSizeBottom), color); // bottom
+            this.Fill(new Rectangle(bounds.X, bounds.Y, borderSizeLeft, bounds.Height), color); // left
+        }
+
+        public void DrawRectangle(Rectangle bounds, Color color, int borderSize) {
+            this.DrawRectangle(bounds, color, borderSize, borderSize, borderSize, borderSize);
+        }
+
         public void Draw(ITexture texture, Point position, Rectangle sourceRectangle) {
             Texture mainTexture = texture as Texture;
 
@@ -251,12 +274,18 @@ namespace crossGFX.SFMLRenderer
             this.newOrigin = Point.Empty;
         }
 
-        public void DrawString(IFont font, string text, int textSize, Color textColor, Point position) {
+        public void DrawString(Point position, IFont font, string text, int textSize, Color textColor,
+            bool bold, bool italic, bool underline) {
             if (newOrigin != Point.Empty) {
                 DrawingSupport.Translate(newOrigin, ref position);
             }
 
-            font.RenderText(text, textSize, textColor, this, position);
+            font.RenderText(this, position, text, textSize, textColor, bold, italic, underline);
+        }
+
+        public void DrawString(Point position, RichString richString) {
+            this.DrawString(position, richString.Font, richString.Text, richString.TextSize, richString.Color,
+                richString.Bold, richString.Italic, richString.Underline);
         }
 
         public void DrawStretched(ITexture texture, Rectangle destinationBounds) {

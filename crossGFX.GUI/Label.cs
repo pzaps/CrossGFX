@@ -1,18 +1,29 @@
 ﻿// Copyright (c) 2014 CrossGFX Team
 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation;
-// version 3.0.
+// This is free and unencumbered software released into the public domain.
 
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// Lesser General Public License for more details.
+// Anyone is free to copy, modify, publish, use, compile, sell, or
+// distribute this software, either in source code form or as a compiled
+// binary, for any purpose, commercial or non-commercial, and by any
+// means.
 
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library; if not, visit
-// https://www.gnu.org/licenses/lgpl.html.
+// In jurisdictions that recognize copyright laws, the author or authors
+// of this software dedicate any and all copyright interest in the
+// software to the public domain. We make this dedication for the benefit
+// of the public at large and to the detriment of our heirs and
+// successors. We intend this dedication to be an overt act of
+// relinquishment in perpetuity of all present and future rights to this
+// software under copyright law.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
+// For more information, please refer to <http://unlicense.org/>
 
 using System;
 using System.Collections.Generic;
@@ -28,13 +39,48 @@ namespace crossGFX.GUI
         public enum VerticalAlignment { Top, Center, Bottom }
         public enum HorizontalAlignment { Left, Center, Right }
 
+        public Label() {
+            this.Value = new RichString();
+            this.Value.Font = GUI.Instance.Skin.Font;
+            this.VAlign = VerticalAlignment.Center;
+            this.ResetTextPosition();
+        }
+
+        public override void DrawMiddle(IRenderTarget renderTarget) {
+            if(string.IsNullOrEmpty(this.Value.Text) || this.Value.Font == null) return;
+            renderTarget.DrawString(textPosition + Offset, this.Value.Font, this.VisibleText,
+                this.Value.TextSize, this.Value.Color, this.Value.Bold, this.Value.Italic, this.Value.Underline);
+            
+        }
+        
+        public override void Tick(IWindow window, TickEventArgs e) {
+            if(this.Value.Modified) {
+                this.ResetTextPosition();
+                this.MaxSize = Value.Size;
+                this.Value.Modified = false;
+            }
+        }
+        
         protected Point textPosition;
 
-        public Label() {
-            this.textSize = 12;
-            this.foreColor = Color.Black;
-            this.font = GUI.Instance.Skin.Font;
-            this.VAlign = VerticalAlignment.Center;
+        protected virtual void ResetTextPosition() {
+            if(this.Value.Font == null) return;
+            Size size = this.Value.Font.MeasureTextSize(this.VisibleText, this.Value.TextSize, this.Value.Bold);
+            Point point = Point.Empty;
+
+            switch(Align) {
+                //case HorizontalAlignment.Left: point.X = 0; break;
+                case HorizontalAlignment.Center: point.X = Bounds.Width / 2 - size.Width / 2; break;
+                case HorizontalAlignment.Right: point.X = Bounds.Width - size.Width; break;
+            }
+
+            switch(VAlign) {
+                //case VerticalAlignment.Top: point.Y = 0; break;
+                case VerticalAlignment.Center: point.Y = Bounds.Height / 2 - size.Height / 2; break;
+                case VerticalAlignment.Bottom: point.Y = Bounds.Height - size.Height; break;
+            }
+
+            this.textPosition = point;
         }
 
         /// <summary>
@@ -43,82 +89,30 @@ namespace crossGFX.GUI
         /// <param name="index">Character index.</param>
         /// <returns>Character position in local coordinates.</returns>
         public Point GetCharacterPosition(int index) {
-            if (text.Length == 0 || index == 0) {
-                return new Point(1, 0);
+            if (String.IsNullOrEmpty(this.Value.Text) || index == 0) {
+                return textPosition;
             }
 
-            String sub = ((maskedText == null) ? text : maskedText).Substring(0, index);
-            Size p = font.MeasureTextSize(sub, textSize);
+            String sub = this.VisibleText.Substring(0, index);
+            Size p = this.Value.Font.MeasureTextSize(sub, this.Value.TextSize, this.Value.Bold);
 
-            if (p.Height >= textSize)
-                p = new Size(p.Width, p.Height - textSize);
+            /*if (p.Height >= this.Value.TextSize)
+                p = new Size(p.Width, p.Height - this.Value.TextSize);*/
 
-            return new Point(p.Width, p.Height);
-        }
-
-        public override void DrawMiddle(IRenderTarget renderTarget) {
-            base.DrawMiddle(renderTarget);
-
-            if (!string.IsNullOrEmpty(text) && font != null) {
-                renderTarget.DrawString(font, ((maskedText == null) ? text : maskedText), textSize, foreColor, textPosition);
-            }
-        }
-
-        protected void SetTextPosition(int x, int y) {
-            this.textPosition = new Point(x, y);
-        }
-
-        void ResetTextPosition() {
-            if(!string.IsNullOrEmpty(Text)) {
-                Size size = Font.MeasureTextSize(Text, textSize);
-                Point point = new Point(0, 0);
-                switch(Align) {
-                    case HorizontalAlignment.Left: point.X = 0; break;
-                    case HorizontalAlignment.Center: point.X = Bounds.Width / 2 - size.Width / 2; break;
-                    case HorizontalAlignment.Right: point.X = Bounds.Width - size.Width; break;
-                }
-                switch(VAlign) {
-                    case VerticalAlignment.Top: point.Y = 0; break;
-                    case VerticalAlignment.Center: point.Y = Bounds.Height / 2 - size.Height / 2; break;
-                    case VerticalAlignment.Bottom: point.Y = Bounds.Height - size.Height; break;
-                }
-                this.textPosition = point;
-            }
+            return new Point(p.Width, this.textPosition.Y);
         }
         
-        IFont font;
-        public IFont Font {
-            get { return this.font; }
-            set {
-                this.font = value;
-                this.ResetTextPosition();
-            }
-        }
-        
-        string text;
-        public string Text {
-            get { return text; }
+        RichString value;
+        public RichString Value {
+            get { return value; }
             set { 
-                this.text = value;
-                if(this.Mask != null)
-                    this.maskedText = Regex.Replace(text, ".", Mask.ToString());
+                this.value = (value != null) ? value : new RichString();
                 this.ResetTextPosition();
             }
         }
 
-        int textSize;
-        public int TextSize { 
-            get { return this.textSize; } 
-            set { 
-                this.textSize = value; 
-                this.ResetTextPosition();
-            } 
-        }
-        
-        Color foreColor;
-        public Color ForeColor {
-            get { return foreColor; }
-            set { this.foreColor = value; }
+        public string VisibleText {
+            get { return ((Mask == null) ? this.Value.Text : Regex.Replace(this.Value.Text, ".", Mask.ToString())); }
         }
 
         HorizontalAlignment align;
@@ -139,15 +133,14 @@ namespace crossGFX.GUI
             }
         }
 
-        String maskedText;
-        char? mask;
-        public char? Mask { 
-            get{ return mask; } 
-            set{
-                this.mask = value;
-                if(value != null) this.Text = this.Text;
-                else this.maskedText = null;
-            } 
+        public char? Mask { get; set; }
+
+        public virtual void Append(string str) {
+            this.Value.Text += str;
+        }
+
+        public virtual void Clear() {
+            this.Value.Text = "";
         }
     }
 }

@@ -1,18 +1,29 @@
 ﻿// Copyright (c) 2014 CrossGFX Team
 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation;
-// version 3.0.
+// This is free and unencumbered software released into the public domain.
 
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// Lesser General Public License for more details.
+// Anyone is free to copy, modify, publish, use, compile, sell, or
+// distribute this software, either in source code form or as a compiled
+// binary, for any purpose, commercial or non-commercial, and by any
+// means.
 
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library; if not, visit
-// https://www.gnu.org/licenses/lgpl.html.
+// In jurisdictions that recognize copyright laws, the author or authors
+// of this software dedicate any and all copyright interest in the
+// software to the public domain. We make this dedication for the benefit
+// of the public at large and to the detriment of our heirs and
+// successors. We intend this dedication to be an overt act of
+// relinquishment in perpetuity of all present and future rights to this
+// software under copyright law.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
+// For more information, please refer to <http://unlicense.org/>
 
 using System;
 using System.Collections.Generic;
@@ -29,6 +40,14 @@ namespace crossGFX.GUI.Skins
         public Skinnable TextField { get; private set; }
         public Skinnable Button { get; private set; }
         public Skinnable CheckBox { get; private set; }
+        public Skinnable ScrollBarHorizontal { get; private set; }
+        public Skinnable ScrollBarVertical { get; private set; }
+        public Skinnable ScrollBarHorizontalThumb { get; private set; }
+        public Skinnable ScrollBarVerticalThumb { get; private set; }
+        public Skinnable ScrollBarButtonUp { get; private set; }
+        public Skinnable ScrollBarButtonDown { get; private set; }
+        public Skinnable ScrollBarButtonLeft { get; private set; }
+        public Skinnable ScrollBarButtonRight { get; private set; }
 
         public Skin(IRenderTexture skinTexture) {
             this.SkinTexture = skinTexture;
@@ -48,6 +67,54 @@ namespace crossGFX.GUI.Skins
             CheckBox.TextureBaseActiveRegion = new Rectangle(448, 32, 15, 15);
             CheckBox.TextureDisabledRegion = new Rectangle(464, 48, 15, 15);
             CheckBox.TextureDisabledActiveRegion = new Rectangle(464, 32, 15, 15);
+
+            ScrollBarHorizontal = new Skinnable(Skinnable.CreateRectangleSubregions(15, 127, 2), SkinTexture);
+            ScrollBarHorizontal.TextureBaseRegion = new Rectangle(400, 208, 15, 127);
+            ScrollBarHorizontal.TextureHoverRegion = new Rectangle(416, 208, 15, 127);
+            ScrollBarHorizontal.TextureDownRegion = new Rectangle(432, 208, 15, 127);
+            ScrollBarHorizontal.TextureDisabledRegion = new Rectangle(448, 208, 15, 127);
+
+            ScrollBarVertical = new Skinnable(Skinnable.CreateRectangleSubregions(15, 127, 2), SkinTexture);
+            ScrollBarVertical.TextureBaseRegion = new Rectangle(400, 208, 15, 127);
+            ScrollBarVertical.TextureHoverRegion = new Rectangle(416, 208, 15, 127);
+            ScrollBarVertical.TextureDownRegion = new Rectangle(432, 208, 15, 127);
+            ScrollBarVertical.TextureDisabledRegion = new Rectangle(448, 208, 15, 127);
+
+            ScrollBarHorizontalThumb = new Skinnable(Skinnable.CreateRectangleSubregions(15, 127, 2), SkinTexture);
+            ScrollBarHorizontalThumb.TextureBaseRegion = new Rectangle(400, 208, 15, 127);
+            ScrollBarHorizontalThumb.TextureHoverRegion = new Rectangle(416, 208, 15, 127);
+            ScrollBarHorizontalThumb.TextureDownRegion = new Rectangle(432, 208, 15, 127);
+            ScrollBarHorizontalThumb.TextureDisabledRegion = new Rectangle(448, 208, 15, 127);
+
+            ScrollBarVerticalThumb = new Skinnable(Skinnable.CreateRectangleSubregions(15, 127, 2), SkinTexture);
+            ScrollBarVerticalThumb.TextureBaseRegion = new Rectangle(400, 208, 15, 127);
+            ScrollBarVerticalThumb.TextureHoverRegion = new Rectangle(416, 208, 15, 127);
+            ScrollBarVerticalThumb.TextureDownRegion = new Rectangle(432, 208, 15, 127);
+            ScrollBarVerticalThumb.TextureDisabledRegion = new Rectangle(448, 208, 15, 127);
+
+            ScrollBarButtonUp = new Skinnable(Skinnable.CreateRectangleSubregions(15, 15, 2), SkinTexture);
+            ScrollBarButtonUp.TextureBaseRegion = new Rectangle(464, 224, 15, 15);
+            ScrollBarButtonUp.TextureHoverRegion = new Rectangle(480, 224, 15, 15);
+            ScrollBarButtonUp.TextureDisabledRegion = new Rectangle(480, 288, 15, 15);
+            ScrollBarButtonUp.TextureDownRegion = new Rectangle(464, 288, 15, 15);
+
+            ScrollBarButtonDown = new Skinnable(Skinnable.CreateRectangleSubregions(15, 15, 2), SkinTexture);
+            ScrollBarButtonDown.TextureBaseRegion = new Rectangle(464, 256, 15, 15);
+            ScrollBarButtonDown.TextureHoverRegion = new Rectangle(480, 256, 15, 15);
+            ScrollBarButtonDown.TextureDisabledRegion = new Rectangle(480, 320, 15, 15);
+            ScrollBarButtonDown.TextureDownRegion = new Rectangle(464, 320, 15, 15);
+
+            ScrollBarButtonLeft = new Skinnable(Skinnable.CreateRectangleSubregions(15, 15, 2), SkinTexture);
+            ScrollBarButtonLeft.TextureBaseRegion = new Rectangle(464, 208, 15, 15);
+            ScrollBarButtonLeft.TextureHoverRegion = new Rectangle(480, 208, 15, 15);
+            ScrollBarButtonLeft.TextureDisabledRegion = new Rectangle(480, 272, 15, 15);
+            ScrollBarButtonLeft.TextureDownRegion = new Rectangle(464, 272, 15, 15);
+
+            ScrollBarButtonRight = new Skinnable(Skinnable.CreateRectangleSubregions(15, 15, 2), SkinTexture);
+            ScrollBarButtonRight.TextureBaseRegion = new Rectangle(464, 240, 15, 15);
+            ScrollBarButtonRight.TextureHoverRegion = new Rectangle(480, 240, 15, 15);
+            ScrollBarButtonRight.TextureDisabledRegion = new Rectangle(480, 304, 15, 15);
+            ScrollBarButtonRight.TextureDownRegion = new Rectangle(464, 304, 15, 15);
         }
 
         /*public void Draw(IRenderTarget renderTarget, Rectangle destinationRegion, Skinnable skinnable, Rectangle skinRegion) {

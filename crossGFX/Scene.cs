@@ -1,18 +1,29 @@
 ﻿// Copyright (c) 2014 CrossGFX Team
 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation;
-// version 3.0.
+// This is free and unencumbered software released into the public domain.
 
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// Lesser General Public License for more details.
+// Anyone is free to copy, modify, publish, use, compile, sell, or
+// distribute this software, either in source code form or as a compiled
+// binary, for any purpose, commercial or non-commercial, and by any
+// means.
 
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library; if not, visit
-// https://www.gnu.org/licenses/lgpl.html.
+// In jurisdictions that recognize copyright laws, the author or authors
+// of this software dedicate any and all copyright interest in the
+// software to the public domain. We make this dedication for the benefit
+// of the public at large and to the detriment of our heirs and
+// successors. We intend this dedication to be an overt act of
+// relinquishment in perpetuity of all present and future rights to this
+// software under copyright law.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
+// For more information, please refer to <http://unlicense.org/>
 
 using System;
 using System.Collections.Generic;
@@ -22,20 +33,10 @@ using crossGFX.Input;
 
 namespace crossGFX
 {
-    public class Scene : IDrawable, IBoundObject, IFocusable, IMouseEventHandler, IKeyboardEventHandler
+    public class Scene : ActorContainer
     {
-        public ActorCollection Actors { get; private set; }
-        IActor focusedActor;
-
-        public bool Visible { get; set; }
-        public bool MouseInBounds { get {return true;} }
-
-        public Scene ParentScene { get; set; }
 
         public Scene() {
-            this.Actors = new ActorCollection(this);
-
-            Visible = true;
         }
 
         public void SubscribeToEvents(IInputHelper inputHelper) {
@@ -52,6 +53,23 @@ namespace crossGFX
         }
 
         void inputHelper_KeyPressed(object sender, KeyEventArgs e) {
+            if(e.Code == Key.Tab) { // focus switch
+                int step = e.Shift ? -1 : 1;
+                int index = actors.IndexOf(focusedActor);
+                for(int i = index + step; i != index; i += step) {
+                    if(i >= actors.Count) i = 0; else if(i < 0) i = actors.Count - 1;
+                    IFocusable focusableActor = actors[i] as IFocusable;
+                    if (focusableActor != null) {
+                        if (focusableActor.CanAcquireFocus) {
+                            if(this.focusedActor != null) (this.focusedActor as IFocusable).HasFocus = false;
+                            this.focusedActor = actors[i];
+                            focusableActor.HasFocus = true;
+                            break;
+                        }
+                    }
+                }
+                return;
+            }
             HandleKeyPressed(e);
         }
 
@@ -65,138 +83,6 @@ namespace crossGFX
 
         void inputHelper_MouseButtonPressed(object sender, MouseButtonEventArgs e) {
             HandleMouseButtonDown(e);
-        }
-
-        public void Tick(IWindow window, TickEventArgs e) {
-            foreach (ITickable actor in GetActors<ITickable>(0, Actors.Count)) {
-                if (actor.Visible) {
-                    actor.Tick(window, e);
-                }
-            }
-        }
-
-        public void Draw(IRenderTarget renderTarget) {
-            foreach (IDrawable actor in GetActors<IDrawable>(0, Actors.Count)) {
-                if (actor.Visible) {
-                    actor.Draw(renderTarget);
-                }
-            }
-        }
-
-        private IEnumerable<T> GetActors<T>(int startIndex, int length) where T : class {
-            for (int i = startIndex; i < startIndex + length; i++) {
-                if (i >= Actors.Count) {
-                    break;
-                }
-                T actor = Actors[i] as T;
-                if (actor != null) {
-                    yield return actor;
-                }
-            }
-        }
-
-        public void HandleMouseButtonDown(MouseButtonEventArgs e) {
-            bool focusFound = false;
-            for (int i = Actors.Count - 1; i >= 0; i--) {
-                if (Actors[i].Visible) {
-                    IBoundObject boundActor = Actors[i] as IBoundObject;
-                    if (boundActor != null) {
-                        if (boundActor.Bounds.ContainsPoint(e.X, e.Y)) {
-                            boundActor.HandleMouseButtonDown(e);
-
-                            IFocusable focusableActor = Actors[i] as IFocusable;
-                            if (focusableActor != null) {
-                                if (focusableActor.CanAcquireFocus) {
-                                    this.focusedActor = Actors[i];
-                                    focusFound = true;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (focusFound == false) {
-                this.focusedActor = null;
-            }
-        }
-
-        public void HandleMouseButtonUp(MouseButtonEventArgs e) {
-            for (int i = Actors.Count - 1; i >= 0; i--) {
-                if (Actors[i].Visible) {
-                    IBoundObject boundActor = Actors[i] as IBoundObject;
-                    if (boundActor != null) {
-                        if (boundActor.Bounds.ContainsPoint(e.X, e.Y)) {
-                            boundActor.HandleMouseButtonUp(e);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        public void HandleMouseMoved(MouseMovedEventArgs e) {
-            foreach (IBoundObject actor in GetActors<IBoundObject>(0, Actors.Count)) {
-                if (actor.Visible) {
-                    if (actor.Bounds.ContainsPoint(e.X, e.Y)) actor.HandleMouseMoved(e);
-                    else if (actor.MouseInBounds) actor.HandleMouseOut(e);
-                }
-                
-            }
-        }
-
-        public void HandleMouseOut(MouseMovedEventArgs e) {
-
-        }
-
-        public void HandleKeyPressed(KeyEventArgs e) {
-            if (this.focusedActor != null && this.focusedActor.Visible) {
-                IKeyboardEventHandler keyboardHandler = this.focusedActor as IKeyboardEventHandler;
-                if (keyboardHandler != null) {
-                    keyboardHandler.HandleKeyPressed(e);
-                }
-            } else {
-                foreach (IKeyboardEventHandler keyboardHandler in GetActors<IKeyboardEventHandler>(0, Actors.Count)) {
-                    if (keyboardHandler.Visible && !keyboardHandler.RequiresFocus) {
-                        keyboardHandler.HandleKeyPressed(e);
-                    }
-                }
-            }
-        }
-
-        public void HandleKeyReleased(KeyEventArgs e) {
-            if (this.focusedActor != null && this.focusedActor.Visible) {
-                IKeyboardEventHandler keyboardHandler = this.focusedActor as IKeyboardEventHandler;
-                if (keyboardHandler != null) {
-                    keyboardHandler.HandleKeyReleased(e);
-                }
-            } else {
-                foreach (IKeyboardEventHandler keyboardHandler in GetActors<IKeyboardEventHandler>(0, Actors.Count)) {
-                    if (keyboardHandler.Visible && !keyboardHandler.RequiresFocus) {
-                        keyboardHandler.HandleKeyReleased(e);
-                    }
-                }
-            }
-        }
-
-        public Rectangle Bounds {
-            get {
-                return new Rectangle(0, 0, 99999, 99999);
-            }
-            set { }
-        }
-
-
-        public bool CanAcquireFocus {
-            get {
-                return false;
-            }
-            set { }
-        }
-
-        public bool RequiresFocus {
-            get { return false; }
         }
     }
 }

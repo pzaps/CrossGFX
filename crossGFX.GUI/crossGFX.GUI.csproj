@@ -44,9 +44,15 @@
     <Compile Include="CheckBox.cs" />
     <Compile Include="Component.cs" />
     <Compile Include="Control.cs" />
+    <Compile Include="ListBox.cs" />
+    <Compile Include="Panel.cs" />
+    <Compile Include="RichLabel.cs" />
     <Compile Include="GUI.cs" />
     <Compile Include="Label.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RichLabelString.cs" />
+    <Compile Include="ScrollBar.cs" />
+    <Compile Include="ScrollBarThumb.cs" />
     <Compile Include="Skins\Skin.cs" />
     <Compile Include="Skins\Skinnable.cs" />
     <Compile Include="TextBox.cs" />
